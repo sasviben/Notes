@@ -1,5 +1,6 @@
 package com.example.notesapp2;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        com.example.notesapp.DBOpenHelper helper = new com.example.notesapp.DBOpenHelper(this);
+        SQLiteDatabase database = helper.getWritableDatabase();
     }
 
     @Override
