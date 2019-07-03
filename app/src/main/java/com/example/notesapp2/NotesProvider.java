@@ -1,12 +1,15 @@
-package com.example.notesapp;
+package com.example.notesapp2;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.example.notesapp.DBOpenHelper;
 
 public class NotesProvider extends ContentProvider {
 
@@ -17,7 +20,7 @@ public class NotesProvider extends ContentProvider {
     private static final String BASE_PATH = "notes";
 
     //Resource identifikator koji identificira content provider
-    private static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
 
     //Konstante za identifikaciju operacija. NOTES zahtjeva podatke
     private static final int NOTES = 1;
@@ -32,15 +35,20 @@ public class NotesProvider extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", NOTES_ID); // # bilo koji broj. Ako dobijem uri koji pocinje sa base_path i zatim zavrsava sa / i brojem, to znaci da trazim odredenu biljesku
     }
 
+    private SQLiteDatabase database;
+
     @Override
     public boolean onCreate() {
-        return false;
+        com.example.notesapp.DBOpenHelper helper = new com.example.notesapp.DBOpenHelper(getContext());
+        database = helper.getWritableDatabase();
+        return true;
     }
 
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+        //dohvati podatke iz stupca iz notes baze
+        return database.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTE_CREATED + " DESC");
     }
 
 
@@ -53,16 +61,21 @@ public class NotesProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        //vraća URI koji odgovara peternu:
+        //base_path -> / -> primarni ključ zapisa
+
+        //dohvati vrijednost primarnog ključa
+        long id = database.insert(DBOpenHelper.TABLE_NOTES, null, values);
+        return Uri.parse(BASE_PATH + "/" + id);
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        return database.delete(DBOpenHelper.TABLE_NOTES, selection, selectionArgs);
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        return database.update(DBOpenHelper.TABLE_NOTES, values, selection, selectionArgs);
     }
 }

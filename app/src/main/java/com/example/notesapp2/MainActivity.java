@@ -1,17 +1,30 @@
 package com.example.notesapp2;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CursorAdapter;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+
+import com.example.notesapp.DBOpenHelper;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,8 +41,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        com.example.notesapp.DBOpenHelper helper = new com.example.notesapp.DBOpenHelper(this);
-        SQLiteDatabase database = helper.getWritableDatabase();
+        insertNote("New note");
+
+        //kursor koji referencira sve podatke u tablici
+        Cursor cursor = getContentResolver().query(NotesProvider.CONTENT_URI, DBOpenHelper.ALL_COLUMNS, null, null, null, null);
+        //za prikaz podataka koristim klasu SimpleCursorAdapter
+        String[] from = {DBOpenHelper.NOTE_TEXT}; //lista stupaca iz baze
+        int[] to = {android.R.id.text1}; //lista id-eva resursa koji se prikazuju na sučelju
+        CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+
+        ListView listView = findViewById(R.id.list);
+        listView.setAdapter(cursorAdapter);
+
+    }
+
+    private void insertNote(String noteText) {
+        ContentValues values = new ContentValues();
+        values.put(DBOpenHelper.NOTE_TEXT, noteText);
+
+        Uri noteUri = getContentResolver().insert(NotesProvider.CONTENT_URI, values);//radim insert u tablicu, vraća Uri
+        Log.d(TAG, "Inserted note: " + noteUri.getLastPathSegment());
     }
 
     @Override
@@ -41,15 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
