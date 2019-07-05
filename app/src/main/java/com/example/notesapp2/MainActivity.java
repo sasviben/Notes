@@ -1,13 +1,12 @@
 package com.example.notesapp2;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -24,10 +23,10 @@ import android.widget.Toast;
 
 import com.example.notesapp.DBOpenHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private CursorAdapter cursorAdapter;
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,16 +45,16 @@ public class MainActivity extends AppCompatActivity {
 
         insertNote("New note");
 
-        //kursor koji referencira sve podatke u tablici
-        Cursor cursor = getContentResolver().query(NotesProvider.CONTENT_URI, DBOpenHelper.ALL_COLUMNS, null, null, null, null);
         //za prikaz podataka koristim klasu SimpleCursorAdapter
         String[] from = {DBOpenHelper.NOTE_TEXT}; //lista stupaca iz baze
         int[] to = {android.R.id.text1}; //lista id-eva resursa koji se prikazuju na sučelju
-        CursorAdapter cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+
+        cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, 0);
 
         ListView listView = findViewById(R.id.list);
         listView.setAdapter(cursorAdapter);
 
+        getLoaderManager().initLoader(0, null, this);
     }
 
     private void insertNote(String noteText) {
@@ -103,4 +102,25 @@ public class MainActivity extends AppCompatActivity {
                 .show();
 
     }
+
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        return new CursorLoader(this, NotesProvider.CONTENT_URI, null, null, null, null);
+//    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new Loader<Cursor>(this);
+    }
+
+    @Override
+    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
+        cursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(android.content.Loader<Cursor> loader) {
+        cursorAdapter.swapCursor(null);
+    }
+
 }
