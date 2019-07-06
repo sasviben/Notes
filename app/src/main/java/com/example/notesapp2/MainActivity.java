@@ -2,13 +2,14 @@ package com.example.notesapp2;
 
 import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,15 +17,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import com.example.notesapp.DBOpenHelper;
-
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String TAG = MainActivity.class.getSimpleName();
+    public static final String TAG = MainActivity.class.getSimpleName();
+    private static final int EDITOR_REQUEST_CODE = 1001;
     private CursorAdapter cursorAdapter;
 
     @Override
@@ -34,27 +34,49 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        openEditorNewNote();
+
+//        insertNote("New note");
+
+//        //za prikaz podataka koristim klasu SimpleCursorAdapter
+//        String[] from = {DBOpenHelper.NOTE_TEXT}; //lista stupaca iz baze
+//        int[] to = {R.id.tvNote}; //lista id-eva resursa koji se prikazuju na sučelju
+
+        cursorAdapter = new NotesCursorAdapter(this, null, 0);
+
+        ListView listView = findViewById(R.id.list);
+        listView.setAdapter(cursorAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, EditorActivity.class);
+                Uri uri = Uri.parse(NotesProvider.CONTENT_URI + "/" + id);
+                intent.putExtra(NotesProvider.CONTENT_ITEM_TYPE, uri);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
+            }
+        });
+
+        getLoaderManager().initLoader(0, null, this);
+
+
+    }
+
+    private void openEditorNewNote() {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(getApplication(), EditorActivity.class);
+                startActivityForResult(intent, EDITOR_REQUEST_CODE);
             }
         });
+    }
 
-        insertNote("New note");
-
-        //za prikaz podataka koristim klasu SimpleCursorAdapter
-        String[] from = {DBOpenHelper.NOTE_TEXT}; //lista stupaca iz baze
-        int[] to = {android.R.id.text1}; //lista id-eva resursa koji se prikazuju na sučelju
-
-        cursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, 0);
-
-        ListView listView = findViewById(R.id.list);
-        listView.setAdapter(cursorAdapter);
-
-        getLoaderManager().initLoader(0, null, this);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == EDITOR_REQUEST_CODE && resultCode == RESULT_OK) {
+            restartLoader();
+        }
     }
 
     private void insertNote(String noteText) {
@@ -83,17 +105,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onOptionsItemSelected(item);
     }
 
+    private void restartLoader() {
+        getLoaderManager().restartLoader(0, null, this);
+    }
+
     private void deleteAllNotes() {
         DialogInterface.OnClickListener diaClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int button) {
                 if (button == DialogInterface.BUTTON_POSITIVE) {
                     getContentResolver().delete(NotesProvider.CONTENT_URI, null, null);
+                    restartLoader();//refresh activity
 
                     Toast.makeText(MainActivity.this, getString(R.string.all_deleted), Toast.LENGTH_SHORT);
                 }
             }
         };
+
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.are_you_sure)
@@ -103,14 +131,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        return new CursorLoader(this, NotesProvider.CONTENT_URI, null, null, null, null);
-//    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new Loader<Cursor>(this);
+        return new CursorLoader(this, NotesProvider.CONTENT_URI, null, null, null, null);
     }
 
     @Override

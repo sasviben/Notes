@@ -9,12 +9,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.example.notesapp.DBOpenHelper;
-
 public class NotesProvider extends ContentProvider {
 
     //Globalni jedinstveni string za identifikaciju content providera Androidu
-    private static final String AUTHORITY = "com.example.notesapp.notesprovider";
+    private static final String AUTHORITY = "com.example.notesapp2.notesprovider";
 
     //Potpuni set podataka
     private static final String BASE_PATH = "notes";
@@ -29,6 +27,8 @@ public class NotesProvider extends ContentProvider {
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH); //parsira URI i govori koja operacija je zatražena
 
+    public static final String CONTENT_ITEM_TYPE = "Note";
+
     static {
         //ovo se izvrašava prvo kad je bilo šta pozvano u ovoj klasi
         uriMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);
@@ -39,7 +39,7 @@ public class NotesProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        com.example.notesapp.DBOpenHelper helper = new com.example.notesapp.DBOpenHelper(getContext());
+        DBOpenHelper helper = new DBOpenHelper(getContext());
         database = helper.getWritableDatabase();
         return true;
     }
@@ -47,6 +47,10 @@ public class NotesProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        if(uriMatcher.match(uri) == NOTES_ID){
+            selection = DBOpenHelper.NOTE_ID + "=" + uri.getLastPathSegment();
+        }
+
         //dohvati podatke iz stupca iz notes baze
         return database.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTE_CREATED + " DESC");
     }

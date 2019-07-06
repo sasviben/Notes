@@ -1,4 +1,4 @@
-package com.example.notesapp;
+package com.example.notesapp2;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBOpenHelper extends SQLiteOpenHelper {
 
     //Konstante za ime i verziju baze
-    private static final String DATABASE_NAME = "notes.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DB_NAME = "notes.db";
+    private static final int DB_VERSION = 1;
 
     //Konstante za identifikaciju tablice i stupaca
     public static final String TABLE_NOTES = "notes";
@@ -27,7 +27,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                     ")";
 
     public DBOpenHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override

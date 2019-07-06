@@ -3,4 +3,8 @@
     <string name="action_delete">Delete all</string>
     <string name="all_deleted">All notes deleted</string>
     <string name="are_you_sure">Are you sure you want delete all notes?</string>
+    <string name="title_activity_editor">EditorActivity</string>
+    <string name="new_note">New note</string>
+    <string name="note_deleted">Note deleted</string>
+    <string name="note_updated">Note updated</string>
 </resources>
