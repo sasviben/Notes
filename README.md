@@ -4,7 +4,7 @@ Aplikacija "Notes" podržava:
 * brisanje bilješke koju editiramo na dva načina. Pobrišemo sav tekst ili kliknemo na gumb "Delete" i
 * brisanje svih bilješki odabirom gumba "Delete all" u navigaciji 
 
+POČETNI ZASLON:
 
+![HomePage](images/homePageView.png)
 
-
-![Početni zaslon](images/homePageView.png)
