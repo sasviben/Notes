@@ -4,13 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DBOpenHelper extends SQLiteOpenHelper {
+public class DBHelper extends SQLiteOpenHelper {
 
-    //Konstante za ime i verziju baze
+    //Constants for database
     private static final String DB_NAME = "notes.db";
     private static final int DB_VERSION = 1;
 
-    //Konstante za identifikaciju tablice i stupaca
+    //Constants for identifying table and columns
     public static final String TABLE_NOTES = "notes";
     public static final String NOTE_ID = "_id";
     public static final String NOTE_TEXT = "noteText";
@@ -18,7 +18,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
 
     public static final String[] ALL_COLUMNS = {NOTE_ID, NOTE_TEXT, NOTE_CREATED};
 
-    //Upit koji kreira tablicu
+    //SQL to create table
     private static final String TABLE_CREATE =
             "CREATE TABLE " + TABLE_NOTES + " (" +
                     NOTE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -26,7 +26,7 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                     NOTE_CREATED + " TEXT default CURRENT_TIMESTAMP" +
                     ")";
 
-    public DBOpenHelper(Context context) {
+    public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 

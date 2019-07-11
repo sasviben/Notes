@@ -15,7 +15,7 @@ import android.widget.Toast;
 public class EditorActivity extends AppCompatActivity {
 
     private String action;
-    private EditText editText;
+    private EditText editor;
     private String filter;
     private String oldText;
 
@@ -28,7 +28,7 @@ public class EditorActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        editText = findViewById(R.id.editText2);
+        editor = findViewById(R.id.editText2);
 
         Intent intent = getIntent();
         Uri uri = intent.getParcelableExtra(NotesProvider.CONTENT_ITEM_TYPE);
@@ -38,19 +38,19 @@ public class EditorActivity extends AppCompatActivity {
             setTitle(getString(R.string.new_note));
         } else {
             action = Intent.ACTION_EDIT;
-            filter = DBOpenHelper.NOTE_ID + "=" + uri.getLastPathSegment();
+            filter = DBHelper.NOTE_ID + "=" + uri.getLastPathSegment();
 
             Cursor cursor = getContentResolver().query(uri,
-                    DBOpenHelper.ALL_COLUMNS,
+                    DBHelper.ALL_COLUMNS,
                     filter,
                     null,
                     null);
 
             cursor.moveToFirst();
-            oldText = cursor.getString(cursor.getColumnIndex(DBOpenHelper.NOTE_TEXT));
+            oldText = cursor.getString(cursor.getColumnIndex(DBHelper.NOTE_TEXT));
 
-            editText.setText(oldText);
-            editText.requestFocus();
+            editor.setText(oldText);
+            editor.requestFocus();
         }
     }
 
@@ -83,7 +83,7 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void finishEditing() {
-        String newText = editText.getText().toString().trim();
+        String newText = editor.getText().toString().trim();
 
         switch (action) {
             case Intent.ACTION_INSERT:
@@ -107,7 +107,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private void updateNote(String noteText) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBOpenHelper.NOTE_TEXT, noteText);
+        contentValues.put(DBHelper.NOTE_TEXT, noteText);
         getContentResolver().update(NotesProvider.CONTENT_URI, contentValues, filter, null);
         Toast.makeText(this, getString(R.string.note_updated), Toast.LENGTH_SHORT).show();
         setResult(RESULT_OK);
@@ -115,7 +115,7 @@ public class EditorActivity extends AppCompatActivity {
 
     private void insertNote(String noteText) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBOpenHelper.NOTE_TEXT, noteText);
+        contentValues.put(DBHelper.NOTE_TEXT, noteText);
 
         getContentResolver().insert(NotesProvider.CONTENT_URI, contentValues);
         setResult(RESULT_OK);

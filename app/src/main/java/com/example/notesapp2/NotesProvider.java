@@ -39,7 +39,7 @@ public class NotesProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        DBOpenHelper helper = new DBOpenHelper(getContext());
+        DBHelper helper = new DBHelper(getContext());
         database = helper.getWritableDatabase();
         return true;
     }
@@ -48,11 +48,11 @@ public class NotesProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         if(uriMatcher.match(uri) == NOTES_ID){
-            selection = DBOpenHelper.NOTE_ID + "=" + uri.getLastPathSegment();
+            selection = DBHelper.NOTE_ID + "=" + uri.getLastPathSegment();
         }
 
         //dohvati podatke iz stupca iz notes baze
-        return database.query(DBOpenHelper.TABLE_NOTES, DBOpenHelper.ALL_COLUMNS, selection, null, null, null, DBOpenHelper.NOTE_CREATED + " DESC");
+        return database.query(DBHelper.TABLE_NOTES, DBHelper.ALL_COLUMNS, selection, null, null, null, DBHelper.NOTE_CREATED + " DESC");
     }
 
 
@@ -69,17 +69,17 @@ public class NotesProvider extends ContentProvider {
         //base_path -> / -> primarni ključ zapisa
 
         //dohvati vrijednost primarnog ključa
-        long id = database.insert(DBOpenHelper.TABLE_NOTES, null, values);
+        long id = database.insert(DBHelper.TABLE_NOTES, null, values);
         return Uri.parse(BASE_PATH + "/" + id);
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return database.delete(DBOpenHelper.TABLE_NOTES, selection, selectionArgs);
+        return database.delete(DBHelper.TABLE_NOTES, selection, selectionArgs);
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return database.update(DBOpenHelper.TABLE_NOTES, values, selection, selectionArgs);
+        return database.update(DBHelper.TABLE_NOTES, values, selection, selectionArgs);
     }
 }

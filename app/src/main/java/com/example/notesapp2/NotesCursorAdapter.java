@@ -17,7 +17,7 @@ public class NotesCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        //inflate layout note_list_item. Vraća ga natrag kad god newView metoda je pozvana
+        //inflate layout note_list_item
         return LayoutInflater.from(context).inflate(
                 R.layout.note_list_item,
                 parent,
@@ -29,7 +29,7 @@ public class NotesCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         //Kada se bind-am na view primam instancu cursor objekta koji gleda na redak u bazi koji bi se trebao prikazati
         String noteText = cursor.getString(
-                cursor.getColumnIndex(DBOpenHelper.NOTE_TEXT)
+                cursor.getColumnIndex(DBHelper.NOTE_TEXT)
         );
 
         int pos = noteText.indexOf(10);

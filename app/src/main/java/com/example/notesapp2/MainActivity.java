@@ -1,7 +1,6 @@
 package com.example.notesapp2;
 
 import android.app.LoaderManager;
-import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +21,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String TAG = MainActivity.class.getSimpleName();
     private static final int EDITOR_REQUEST_CODE = 1001;
     private CursorAdapter cursorAdapter;
 
@@ -35,12 +32,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setSupportActionBar(toolbar);
 
         openEditorNewNote();
-
-//        insertNote("New note");
-
-//        //za prikaz podataka koristim klasu SimpleCursorAdapter
-//        String[] from = {DBOpenHelper.NOTE_TEXT}; //lista stupaca iz baze
-//        int[] to = {R.id.tvNote}; //lista id-eva resursa koji se prikazuju na sučelju
 
         cursorAdapter = new NotesCursorAdapter(this, null, 0);
 
@@ -77,14 +68,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (requestCode == EDITOR_REQUEST_CODE && resultCode == RESULT_OK) {
             restartLoader();
         }
-    }
-
-    private void insertNote(String noteText) {
-        ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.NOTE_TEXT, noteText);
-
-        Uri noteUri = getContentResolver().insert(NotesProvider.CONTENT_URI, values);//radim insert u tablicu, vraća Uri
-        Log.d(TAG, "Inserted note: " + noteUri.getLastPathSegment());
     }
 
     @Override
