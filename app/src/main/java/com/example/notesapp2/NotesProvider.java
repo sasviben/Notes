@@ -11,28 +11,28 @@ import android.support.annotation.Nullable;
 
 public class NotesProvider extends ContentProvider {
 
-    //Globalni jedinstveni string za identifikaciju content providera Androidu
+    //unique string that identifies the content provider to the Android framework
     private static final String AUTHORITY = "com.example.notesapp2.notesprovider";
-
-    //Potpuni set podataka
     private static final String BASE_PATH = "notes";
 
-    //Resource identifikator koji identificira content provider
+    //resource identifier that identifies the content provider
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
 
-    //Konstante za identifikaciju operacija. NOTES zahtjeva podatke
+    //Constants to identify the requested operation
     private static final int NOTES = 1;
-    //Notes_ID upravlja samo sa jednim zapisom
     private static final int NOTES_ID = 2;
 
-    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH); //parsira URI i govori koja operacija je zatražena
+    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH); //class that parse a URI and then tell which operation has been requested
 
     public static final String CONTENT_ITEM_TYPE = "Note";
 
     static {
-        //ovo se izvrašava prvo kad je bilo šta pozvano u ovoj klasi
+        //this block will execute the first time anything is called from this class
         uriMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);
-        uriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", NOTES_ID); // # bilo koji broj. Ako dobijem uri koji pocinje sa base_path i zatim zavrsava sa / i brojem, to znaci da trazim odredenu biljesku
+        uriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", NOTES_ID); // # is a wild card, it means any numerical value.
+        // that means if I get a URI that starts with base_path and then ends with a / and a number that means I'm looking
+        //for a particular note, a particular row in the database table.
+
     }
 
     private SQLiteDatabase database;
@@ -47,11 +47,11 @@ public class NotesProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        if(uriMatcher.match(uri) == NOTES_ID){
+        if (uriMatcher.match(uri) == NOTES_ID) {
             selection = DBHelper.NOTE_ID + "=" + uri.getLastPathSegment();
         }
 
-        //dohvati podatke iz stupca iz notes baze
+        //get data from table
         return database.query(DBHelper.TABLE_NOTES, DBHelper.ALL_COLUMNS, selection, null, null, null, DBHelper.NOTE_CREATED + " DESC");
     }
 
@@ -65,11 +65,13 @@ public class NotesProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        //vraća URI koji odgovara peternu:
-        //base_path -> / -> primarni ključ zapisa
+        // return a URI that match pattern: the base_path followed by
+        // '/' and then the id of the record
 
-        //dohvati vrijednost primarnog ključa
-        long id = database.insert(DBHelper.TABLE_NOTES, null, values);
+        // get id value
+        long id = database.insert(DBHelper.TABLE_NOTES, null, values);//ContentValues is a class that has a collection of name value pairs
+        //ContentValues is used to pass data around on the back end.
+
         return Uri.parse(BASE_PATH + "/" + id);
     }
 

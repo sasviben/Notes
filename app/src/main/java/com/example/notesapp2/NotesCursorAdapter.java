@@ -27,13 +27,14 @@ public class NotesCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        //Kada se bind-am na view primam instancu cursor objekta koji gleda na redak u bazi koji bi se trebao prikazati
+        //When you bind the view, you receive an instance of the cursor object, and it will already point to the particular row of your database that's supposed to be displayed.
         String noteText = cursor.getString(
                 cursor.getColumnIndex(DBHelper.NOTE_TEXT)
         );
 
-        int pos = noteText.indexOf(10);
-        if(pos != -1){
+        //check whether there's a line feed
+        int pos = noteText.indexOf(10);//10 is ASCII value of line feed character
+        if (pos != -1) {
             noteText = noteText.substring(0, pos) + " ...";
         }
 
