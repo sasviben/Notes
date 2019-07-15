@@ -46,11 +46,14 @@ public class EditorActivity extends AppCompatActivity {
                     null,
                     null);
 
+            assert cursor != null;
             cursor.moveToFirst();
             oldText = cursor.getString(cursor.getColumnIndex(DBHelper.NOTE_TEXT));
 
             editor.setText(oldText);
             editor.requestFocus();
+
+            cursor.close();
         }
     }
 
